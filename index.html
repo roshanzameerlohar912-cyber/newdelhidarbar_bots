@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hotel Billing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body { font-family: Arial; padding: 15px; }
+    button { padding: 10px; margin: 5px; font-size: 16px; }
+    select, input { padding: 8px; margin: 5px; font-size: 16px; }
+  </style>
+</head>
+<body>
+
+<h2>Hotel Order</h2>
+
+<label>Select Table:</label>
+<select id="table">
+  <option value="1">Table 1</option>
+  <option value="2">Table 2</option>
+  <option value="3">Table 3</option>
+</select>
+
+<h3>Select Item</h3>
+
+<button onclick="addItem('Roti',10)">Roti ₹10</button>
+<button onclick="addItem('Dal Fry',120)">Dal Fry ₹120</button>
+<button onclick="addItem('Rice',80)">Rice ₹80</button>
+
+<br><br>
+
+<label>Quantity:</label>
+<input type="number" id="qty" value="1" min="1">
+
+<h3>Bill</h3>
+<div id="bill"></div>
+
+<br>
+<button onclick="submitBill()">Submit Bill</button>
+
+<script>
+let items = [];
+let grandTotal = 0;
+
+function addItem(name, price) {
+  let qty = parseInt(document.getElementById("qty").value);
+  if(qty <= 0) return;
+
+  let total = qty * price;
+  grandTotal += total;
+
+  items.push(name + " x " + qty + " = ₹" + total);
+  
+  document.getElementById("bill").innerHTML =
+    items.join("<br>") + "<br><br><b>Total = ₹" + grandTotal + "</b>";
+}
+
+function submitBill() {
+  let table = document.getElementById("table").value;
+
+  let message = "Table: " + table + "\n\n" +
+                items.join("\n") +
+                "\n\nTotal = ₹" + grandTotal;
+
+  Telegram.WebApp.sendData(message);
+}
+</script>
+
+</body>
+</html>
