@@ -1,68 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hotel Billing</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <title>New Delhi Darbar - Order</title>
   <style>
     body { font-family: Arial; padding: 15px; }
-    button { padding: 10px; margin: 5px; font-size: 16px; }
-    select, input { padding: 8px; margin: 5px; font-size: 16px; }
+    h2 { margin-top: 25px; }
+    button { padding: 8px 12px; margin: 5px; }
+    select, input { padding: 6px; margin: 5px; }
+    .itemBox { border:1px solid #ddd; padding:10px; margin:5px 0; }
+    .total { font-size:18px; font-weight:bold; margin-top:10px; }
   </style>
 </head>
 <body>
 
-<h2>Hotel Order</h2>
+<h1>NEW DELHI DARBAR</h1>
 
 <label>Select Table:</label>
 <select id="table">
-  <option value="1">Table 1</option>
-  <option value="2">Table 2</option>
-  <option value="3">Table 3</option>
+  <option>Table 1</option>
+  <option>Table 2</option>
+  <option>Table 3</option>
 </select>
 
-<h3>Select Item</h3>
+<h2>Select Category</h2>
+<select id="category" onchange="loadItems()">
+  <option value="">--Select--</option>
+  <option value="rice">Rice</option>
+  <option value="veg">Veg Gravy</option>
+  <option value="egg">Egg Gravy</option>
+  <option value="chicken">Chicken Gravy</option>
+  <option value="roti">Roti</option>
+  <option value="starter">Chicken Starter</option>
+</select>
 
-<button onclick="addItem('Roti',10)">Roti ₹10</button>
-<button onclick="addItem('Dal Fry',120)">Dal Fry ₹120</button>
-<button onclick="addItem('Rice',80)">Rice ₹80</button>
+<div id="items"></div>
 
-<br><br>
-
-<label>Quantity:</label>
-<input type="number" id="qty" value="1" min="1">
-
-<h3>Bill</h3>
+<h2>Bill</h2>
 <div id="bill"></div>
+<div class="total" id="total"></div>
 
-<br>
 <button onclick="submitBill()">Submit Bill</button>
 
 <script>
-let items = [];
-let grandTotal = 0;
+let menu = {
+  rice: [
+    {name:"Masala Rice", half:60, full:100},
+    {name:"Jeera Rice", half:60, full:100},
+    {name:"Veg Fried Rice", half:60, full:100},
+    {name:"Ghee Rice", half:70, full:130},
+    {name:"Lemon Rice", full:120},
+    {name:"Tomato Rice", full:120},
+    {name:"Paneer Fried Rice", full:140},
+    {name:"Egg Fried Rice", half:60, full:100},
+    {name:"Chicken Fried Rice", half:90, full:130}
+  ],
+  veg: [
+    {name:"Paneer Tikka Masala", full:180},
+    {name:"Shahi Paneer", full:170},
+    {name:"Veg Kolapuri", full:140},
+    {name:"Dal Fry", half:50, full:100},
+    {name:"Dal Tadka", half:60, full:100}
+  ],
+  egg: [
+    {name:"Egg Masala", half:60, full:100},
+    {name:"Egg Kolapuri", half:60, full:100},
+    {name:"Egg Hyderabadi", full:120},
+    {name:"Egg Burji", full:50}
+  ],
+  chicken: [
+    {name:"Chicken Masala", half:100, full:200},
+    {name:"Chicken Kolapuri", half:100, full:200},
+    {name:"Chicken Hyderabadi", half:120, full:230},
+    {name:"Chicken Kadai", half:130, full:240}
+  ],
+  roti: [
+    {name:"Tandoori Roti", full:20},
+    {name:"Butter Roti", full:25},
+    {name:"Butter Kulcha", full:35},
+    {name:"Jawari Roti", full:10}
+  ],
+  starter: [
+    {name:"Chicken 65", full:200},
+    {name:"Chicken Lollipop", full:220},
+    {name:"Chicken Manchurian", full:200}
+  ]
+};
 
-function addItem(name, price) {
-  let qty = parseInt(document.getElementById("qty").value);
-  if(qty <= 0) return;
+let billItems = [];
 
-  let total = qty * price;
-  grandTotal += total;
+function loadItems(){
+  let cat = document.getElementById("category").value;
+  let itemsDiv = document.getElementById("items");
+  itemsDiv.innerHTML = "";
 
-  items.push(name + " x " + qty + " = ₹" + total);
-  
-  document.getElementById("bill").innerHTML =
-    items.join("<br>") + "<br><br><b>Total = ₹" + grandTotal + "</b>";
+  if(!menu[cat]) return;
+
+  menu[cat].forEach(item=>{
+    let div = document.createElement("div");
+    div.className="itemBox";
+
+    let sizeOptions="";
+    if(item.half) sizeOptions+=`<option value="${item.half}">Half ₹${item.half}</option>`;
+    if(item.full) sizeOptions+=`<option value="${item.full}">Full ₹${item.full}</option>`;
+
+    div.innerHTML=`
+      <b>${item.name}</b><br>
+      <select class="size">${sizeOptions}</select>
+      Qty: <input type="number" value="1" min="1" class="qty">
+      <button onclick="addToBill('${item.name}', this)">Add</button>
+    `;
+    itemsDiv.appendChild(div);
+  });
 }
 
-function submitBill() {
+function addToBill(name, btn){
+  let parent = btn.parentElement;
+  let price = parent.querySelector(".size").value;
+  let qty = parent.querySelector(".qty").value;
+  let total = price * qty;
+
+  billItems.push(`${name} x ${qty} = ₹${total}`);
+  renderBill();
+}
+
+function renderBill(){
+  let billDiv = document.getElementById("bill");
+  let totalDiv = document.getElementById("total");
+
+  billDiv.innerHTML="";
+  let grandTotal=0;
+
+  billItems.forEach(item=>{
+    billDiv.innerHTML += item + "<br>";
+    grandTotal += parseInt(item.split("₹")[1]);
+  });
+
+  totalDiv.innerHTML="Total = ₹"+grandTotal;
+}
+
+function submitBill(){
   let table = document.getElementById("table").value;
+  let message = "NEW DELHI DARBAR\n"+table+"\n\n"+billItems.join("\n");
 
-  let message = "Table: " + table + "\n\n" +
-                items.join("\n") +
-                "\n\nTotal = ₹" + grandTotal;
-
-  Telegram.WebApp.sendData(message);
+  fetch('/api/bot',{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({bill:message})
+  }).then(()=>alert("Bill Sent!"));
 }
 </script>
 
