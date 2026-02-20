@@ -1,16 +1,18 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New Delhi Darbar - Order</title>
-  <style>
-    body { font-family: Arial; padding: 15px; }
-    h2 { margin-top: 25px; }
-    button { padding: 8px 12px; margin: 5px; }
-    select, input { padding: 6px; margin: 5px; }
-    .itemBox { border:1px solid #ddd; padding:10px; margin:5px 0; }
-    .total { font-size:18px; font-weight:bold; margin-top:10px; }
-  </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>New Delhi Darbar - Order</title>
+
+<style>
+body { font-family: Arial; padding: 15px; }
+h2 { margin-top: 25px; }
+button { padding: 8px 12px; margin: 5px; }
+select, input { padding: 6px; margin: 5px; }
+.itemBox { border:1px solid #ddd; padding:10px; margin:5px 0; }
+.total { font-size:18px; font-weight:bold; margin-top:10px; }
+</style>
 </head>
 <body>
 
@@ -18,20 +20,46 @@
 
 <label>Select Table:</label>
 <select id="table">
-  <option>Table 1</option>
-  <option>Table 2</option>
-  <option>Table 3</option>
+<option>Table 1</option>
+<option>Table 2</option>
+<option>Table 3</option>
+<option>Table 4</option>
+<option>Table 5</option>
+<option>Table 6</option>
+<option>Table 7</option>
+<option>Table 8</option>
+<option>Table 9</option>
+<option>Table 10</option>
+<option>Table 11</option>
+<option>Table 12</option>
+</select>
+<label>L Table:</label>
+<select id="table">
+<option>Table 1</option>
+<option>Table 2</option>
+<option>Table 3</option>
+<option>Table 4</option>
+</select>
+
+<label>Family Table:</label>
+<select id="table">
+<option>Table 1</option>
+<option>Table 2</option>
+<option>Table 3</option>
+<option>Table 4</option>
 </select>
 
 <h2>Select Category</h2>
 <select id="category" onchange="loadItems()">
-  <option value="">--Select--</option>
-  <option value="rice">Rice</option>
-  <option value="veg">Veg Gravy</option>
-  <option value="egg">Egg Gravy</option>
-  <option value="chicken">Chicken Gravy</option>
-  <option value="roti">Roti</option>
-  <option value="starter">Chicken Starter</option>
+<option value="">--Select--</option>
+<option value="Rice">Rice</option>
+<option value="veg Gravy">Veg Gravy</option>
+<option value="veg starter">veg Starter</option>
+<option value="egg Gravy">Egg Gravy</option>
+<option value="egg starter">Egg starter</option>
+<option value="chicken Gravy">Chicken Gravy</option>
+<option value="chicken starter">Chicken Starter</option>
+<option value="roti">Roti</option>
 </select>
 
 <div id="items"></div>
@@ -40,116 +68,216 @@
 <div id="bill"></div>
 <div class="total" id="total"></div>
 
-<button onclick="submitBill()">Submit Bill</button>
+<button onclick="submitBill()">Final Submit</button>
 
 <script>
 let menu = {
-  rice: [
-    {name:"Masala Rice", half:60, full:100},
-    {name:"Jeera Rice", half:60, full:100},
-    {name:"Veg Fried Rice", half:60, full:100},
-    {name:"Ghee Rice", half:70, full:130},
-    {name:"Lemon Rice", full:120},
-    {name:"Tomato Rice", full:120},
-    {name:"Paneer Fried Rice", full:140},
-    {name:"Egg Fried Rice", half:60, full:100},
-    {name:"Chicken Fried Rice", half:90, full:130}
-  ],
-  veg: [
-    {name:"Paneer Tikka Masala", full:180},
-    {name:"Shahi Paneer", full:170},
-    {name:"Veg Kolapuri", full:140},
-    {name:"Dal Fry", half:50, full:100},
-    {name:"Dal Tadka", half:60, full:100}
-  ],
-  egg: [
-    {name:"Egg Masala", half:60, full:100},
-    {name:"Egg Kolapuri", half:60, full:100},
-    {name:"Egg Hyderabadi", full:120},
-    {name:"Egg Burji", full:50}
-  ],
-  chicken: [
-    {name:"Chicken Masala", half:100, full:200},
-    {name:"Chicken Kolapuri", half:100, full:200},
-    {name:"Chicken Hyderabadi", half:120, full:230},
-    {name:"Chicken Kadai", half:130, full:240}
-  ],
-  roti: [
-    {name:"Tandoori Roti", full:20},
-    {name:"Butter Roti", full:25},
-    {name:"Butter Kulcha", full:35},
-    {name:"Jawari Roti", full:10}
-  ],
-  starter: [
-    {name:"Chicken 65", full:200},
-    {name:"Chicken Lollipop", full:220},
-    {name:"Chicken Manchurian", full:200}
-  ]
+rice: [
+    {name:"Masala Rice", half:60, full:100},
+    {name:"Jeera Rice", half:60, full:100},
+    {name:"Veg Fried Rice", half:60, full:100},
+    {name:"Ghee Rice", half:70, full:130},
+    {name:"Lemon Rice", full:120},
+    {name:"Tomato Rice", full:120},
+    {name:"Paneer Fried Rice", full:140},
+    {name:"Egg Rice", half:60, full:100},
+    {name:"Egg Fried Rice", half:60, full:100},
+    {name:"Chicken Fried Rice", half:90, full:130}
+    {name:"chicken Schezwan rice", full:150},
+    {name:"Chicken dum biryani", half:90, full:130}
+    {name:"cord Rice", full:150},
+    {name:"dall khichdi", full:120},
+    {name:"palak dall khichdi", full:140},
+    {name:"mashroom fried Rice", full:140},
+  ],
+ veg Gravy: [
+  {name:"Paneer Tikka Masala", full:180},
+  {name:"Paneer Kolapuri", full:150},
+  {name:"Shahi Paneer", full:170},
+  {name:"Paneer Masala", full:150},
+  {name:"Betes Paneer Masala", full:180},
+  {name:"Palak Paneer", full:170},
+  {name:"Paneer Kadai", full:180},
+  {name:"Paneer Makhan Wala", full:170},
+  {name:"Mix Masala", full:130},
+  {name:"Veg Kolapuri", full:140},
+  {name:"Veg Makhan Wala", full:160},
+  {name:"Veg Kadai", full:150},
+  {name:"Dal Fry", half:50, full:100},
+  {name:"Dal Tadka", half:60, full:110},
+  {name:"Dal Kolapuri", half:60, full:110},
+  {name:"Madki Masala", half:60, full:100},
+  {name:"Madki Dry", full:120},
+  {name:"Dal Madki Mix", full:150},
+  {name:"Dal Makhan Wala", full:120},
+  {name:"Hyderabadi Cheese", full:160},
+  {name:"Cashew Nut Masala", full:150},
+  {name:"Cashew Nuts", full:150},
+  {name:"Kaju Hyderabadi", full:160},
+  {name:"Cashew Makhan Wala", full:180},
+  {name:"Cashew Cheese Mix", full:180},
+  {name:"Mushroom Masala", full:150},
+  {name:"Mushroom Kolapuri", full:160},
+  {name:"Mushroom Hyderabadi", full:170},
+  {name:"Mushroom Makhan Wala", full:170},
+  {name:"Mushroom Kadai", full:180}
+  ],
+Veg starter:[
+  { name: "Paneer Chilly", full: 170 },
+  { name: "Paneer Manchurian", full: 170 },
+  { name: "Paneer Pepper Dry", full: 200 },
+  { name: "Mushroom Chilly", full: 200 },
+  { name: "Mushroom Manchurian", full: 200 },
+  { name: "Mushroom Pepper Dry", full: 200 },
+{ name: "Paneer Mushroom Pepper Dry", full: 180 }
+],
+   egg Gravy: [
+    {name:"Egg Masala", half:60, full:100},
+    {name:"Egg Kolapuri", half:60, full:100},
+    {name:"Egg Kacha masala", half:60, full:100},
+    {name:"Egg Hyderabadi", full:120},
+    {name:"Egg makhanwala ", full:150},
+    {name:"Egg maharaja", full:150},
+    {name:"Egg Burji", full:50}
+    {name:"boild egg fry ", full:60}
+  ],
+egg starter: [
+{ name: "Egg Chilly", full: 150 },
+  { name: "Egg Manchurian", full: 150 },
+  { name: "Egg Pakoda", full: 180 },
+  { name: "Omelet", full: 50 },
+  { name: "Boiled Egg", full: 15 }
+],
+   chicken Gravy: [
+     { name: "Chicken Kadai", threePcs: 130, sixPcs: 240, twelvePcs: 450 },
+  { name: "Chicken Tikka Masala", threePcs: 250, sixPcs: 250, twelvePcs: 450 },
+  { name: "Chicken Mughlai", threePcs: 130, sixPcs: 240, twelvePcs: 450 },
+  { name: "Chicken Maharaja", threePcs: 150, sixPcs: 280, twelvePcs: 550 },
+  { name: "Chicken Patiyala", threePcs: 150, sixPcs: 280, twelvePcs: 550 },
+  { name: "Chicken Guardian Masala", threePcs: 150, sixPcs: 280, twelvePcs: 550 },
+  { name: "Chicken Makhanwala", threePcs: 150, sixPcs: 280, twelvePcs: 550 },
+  { name: "Chicken Masala", threePcs: 100, sixPcs: 200, twelvePcs: 400 },
+  { name: "Chicken Kolhapuri", threePcs: 100, sixPcs: 200, twelvePcs: 400 },
+  { name: "Chicken Hyderabadi (New Delhi Darbar)", threePcs: 120, sixPcs: 230, twelvePcs: 450 }
+  ],
+Chicken starter: [
+     { name: "Chicken Don (6 pcs)", full: 230 },
+  { name: "Chicken Domestic (6 pcs)", full: 250 },
+  { name: "Chicken Lollipop (6 pcs)", full: 220 },
+  { name: "Chicken Majestic Boneless (10 pcs)", full: 250 },
+  { name: "Chicken Crispy Boneless (10 pcs)", full: 250 },
+  { name: "Chicken Dragon Boneless (10 pcs)", full: 250 },
+  { name: "Chicken 65 Boneless (10 pcs)", full: 200 },
+  { name: "Chicken Guardian Boneless (10 pcs)", full: 230 },
+  { name: "pepar dryBoneless (10 pcs)", full: 200 },
+  { name: "Garlic Chicken Boneless (10 pcs)", full: 220 },
+  { name: "Chicken Chilli Boneless (10 pcs)", full: 200 },
+  { name: "Chicken Manchurian (10 pcs)", full: 200 },
+  { name: "Chicken 555 (10 pcs)", full: 200 },
+  { name: "Chicken Kabab (10 pcs)", full: 140 }
+],
+ roti: [
+    {name:"Tandoori Roti", full:15},
+    {name:"Butter Roti", full:20},
+    {name:"Butter Kulcha", full:30},
+    {name:"Jawari Roti", full:10}
+  ],
 };
-
-let billItems = [];
+let billItems = {};
 
 function loadItems(){
-  let cat = document.getElementById("category").value;
-  let itemsDiv = document.getElementById("items");
-  itemsDiv.innerHTML = "";
+let cat = document.getElementById("category").value;
+let itemsDiv = document.getElementById("items");
+itemsDiv.innerHTML = "";
 
-  if(!menu[cat]) return;
+if(!menu[cat]) return;
 
-  menu[cat].forEach(item=>{
-    let div = document.createElement("div");
-    div.className="itemBox";
+menu[cat].forEach(item=>{
+let div = document.createElement("div");
+div.className="itemBox";
 
-    let sizeOptions="";
-    if(item.half) sizeOptions+=`<option value="${item.half}">Half ₹${item.half}</option>`;
-    if(item.full) sizeOptions+=`<option value="${item.full}">Full ₹${item.full}</option>`;
+let sizeOptions="";
+if(item.half) sizeOptions+=`<option value="${item.half}">Half ₹${item.half}</option>`;
+if(item.full) sizeOptions+=`<option value="${item.full}">Full ₹${item.full}</option>`;
 
-    div.innerHTML=`
-      <b>${item.name}</b><br>
-      <select class="size">${sizeOptions}</select>
-      Qty: <input type="number" value="1" min="1" class="qty">
-      <button onclick="addToBill('${item.name}', this)">Add</button>
-    `;
-    itemsDiv.appendChild(div);
-  });
+div.innerHTML=`
+<b>${item.name}</b><br>
+<select class="size">${sizeOptions}</select>
+Qty: <input type="number" value="1" min="1" class="qty">
+<button onclick="addToBill('${item.name}', this)">Add</button>
+`;
+
+itemsDiv.appendChild(div);
+});
 }
 
 function addToBill(name, btn){
-  let parent = btn.parentElement;
-  let price = parent.querySelector(".size").value;
-  let qty = parent.querySelector(".qty").value;
-  let total = price * qty;
 
-  billItems.push(`${name} x ${qty} = ₹${total}`);
-  renderBill();
+let parent = btn.parentElement;
+let price = parseInt(parent.querySelector(".size").value);
+let qty = parseInt(parent.querySelector(".qty").value);
+
+let key = name + "_" + price;
+
+if(billItems[key]){
+billItems[key].qty += qty;
+}else{
+billItems[key] = { name:name, price:price, qty:qty };
+}
+
+renderBill();
 }
 
 function renderBill(){
-  let billDiv = document.getElementById("bill");
-  let totalDiv = document.getElementById("total");
 
-  billDiv.innerHTML="";
-  let grandTotal=0;
+let billDiv = document.getElementById("bill");
+let totalDiv = document.getElementById("total");
 
-  billItems.forEach(item=>{
-    billDiv.innerHTML += item + "<br>";
-    grandTotal += parseInt(item.split("₹")[1]);
-  });
+billDiv.innerHTML="";
+let grandTotal=0;
 
-  totalDiv.innerHTML="Total = ₹"+grandTotal;
+for(let key in billItems){
+
+let item = billItems[key];
+let itemTotal = item.price * item.qty;
+grandTotal += itemTotal;
+
+billDiv.innerHTML += `${item.name} x ${item.qty} = ₹${itemTotal}<br>`;
+}
+
+totalDiv.innerHTML="TOTAL = ₹"+grandTotal;
 }
 
 function submitBill(){
-  let table = document.getElementById("table").value;
-  let message = "NEW DELHI DARBAR\n"+table+"\n\n"+billItems.join("\n");
 
-  fetch('/api/bot',{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({bill:message})
-  }).then(()=>alert("Bill Sent!"));
+let table = document.getElementById("table").value;
+let grandTotal = 0;
+let lines = [];
+
+for(let key in billItems){
+let item = billItems[key];
+let itemTotal = item.price * item.qty;
+grandTotal += itemTotal;
+lines.push(`${item.name} x ${item.qty} = ₹${itemTotal}`);
 }
-</script>
 
+let message =
+"🧾 NEW DELHI DARBAR\n\n" +
+table + "\n\n" +
+lines.join("\n") +
+"\n-----------------\nTOTAL = ₹" + grandTotal;
+
+fetch('/api/bot',{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({bill:message})
+}).then(()=>{
+alert("Bill Sent Successfully!");
+billItems = {};
+renderBill();
+});
+}
+
+</script>
 </body>
 </html>
