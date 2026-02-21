@@ -46,6 +46,98 @@ select,input,button{padding:8px;margin:5px 0;}
 
 <button onclick="holdBill()">Hold Bill</button>
 <button onclick="startVoice()">🎤 Speak Order</button>
+  h2>Voice Billing System</h2>
+
+<button onclick="startVoice()">🎤 Speak Order</button>
+
+<h3>Bill:</h3>
+<div id="bill"></div>
+<h3 id="total"></h3>
+
+<script>
+
+// MENU DATA
+const menu = [
+  {name:"paneer tikka masala", full:180},
+  {name:"shahi paneer", full:170},
+  {name:"veg kolapuri", full:140},
+  {name:"dal fry", half:50, full:100},
+  {name:"dal tadka", half:60, full:110}
+];
+
+let billItems = [];
+
+function startVoice() {
+
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("Use Chrome browser");
+    return;
+  }
+
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = "en-IN";
+
+  recognition.onresult = function(event) {
+
+    const text = event.results[0][0].transcript.toLowerCase();
+    processOrder(text);
+
+  };
+
+  recognition.start();
+}
+
+function processOrder(text) {
+
+  let words = text.split(" ");
+
+  let qty = 1;
+  let size = "full";
+
+  words.forEach(w => {
+    if (!isNaN(w)) qty = parseInt(w);
+    if (w === "half") size = "half";
+  });
+
+  menu.forEach(item => {
+
+    if (text.includes(item.name)) {
+
+      let price = item[size] || item.full;
+      let total = price * qty;
+
+      billItems.push({
+        name: item.name,
+        qty: qty,
+        size: size,
+        price: price,
+        total: total
+      });
+
+    }
+
+  });
+
+  showBill();
+}
+
+function showBill() {
+
+  let html = "";
+  let grandTotal = 0;
+
+  billItems.forEach(item => {
+    html += `${item.qty} ${item.name} (${item.size}) - ₹${item.total}<br>`;
+    grandTotal += item.total;
+  });
+
+  document.getElementById("bill").innerHTML = html;
+  document.getElementById("total").innerText = "Total = ₹" + grandTotal;
+}
+
+</script>
+
+</body>
 <button onclick="finalSubmit()">Final Submit</button>
 <button onclick="printBill()">Print</button>
 
