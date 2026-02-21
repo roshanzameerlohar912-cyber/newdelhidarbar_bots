@@ -2,160 +2,206 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Delhi Darbar - Order</title>
+<title>NEW DELHI DARBAR BILLING</title>
 
 <style>
-body { font-family: Arial; padding: 15px; }
-h2 { margin-top: 25px; }
-button { padding: 8px 12px; margin: 5px; }
-select, input { padding: 6px; margin: 5px; }
-.itemBox { border:1px solid #ddd; padding:10px; margin:5px 0; }
-.total { font-size:18px; font-weight:bold; margin-top:10px; }
+body{font-family:Arial;padding:15px;}
+h1{margin-bottom:5px;}
+select,input,button{padding:8px;margin:5px 0;}
+.itemBox{border:1px solid #ccc;padding:10px;margin:5px 0;}
+.billBox{border:2px solid black;padding:10px;margin-top:10px;}
+.total{font-size:18px;font-weight:bold;margin-top:10px;}
+.smallBtn{padding:3px 6px;font-size:12px;}
 </style>
 </head>
-
 <body>
 
 <h1>NEW DELHI DARBAR</h1>
 
 <label>Select Table:</label>
-<select id="table">
+<select id="table" onchange="loadTableBill()">
 <option>Table 1</option>
 <option>Table 2</option>
 <option>Table 3</option>
+<option>Table 4</option>
+<option>Table 5</option>
 </select>
 
 <h2>Select Category</h2>
 <select id="category" onchange="loadItems()">
 <option value="">--Select--</option>
-<option value="rice">Rice</option>
 <option value="veg">Veg Gravy</option>
 <option value="egg">Egg Gravy</option>
 <option value="chicken">Chicken Gravy</option>
 <option value="roti">Roti</option>
-<option value="starter">Chicken Starter</option>
 </select>
-
-<button onclick="startListening()">🎤 Speak Order</button>
 
 <div id="items"></div>
 
 <h2>Bill</h2>
+<div class="billBox">
 <div id="bill"></div>
-<div class="total" id="total"></div>
+<div class="total" id="total">Total = ₹0</div>
+</div>
 
-<button onclick="submitBill()">Submit Bill</button>
+<button onclick="holdBill()">Hold Bill</button>
+<button onclick="startVoice()">🎤 Speak Order</button>
+<button onclick="finalSubmit()">Final Submit</button>
+<button onclick="printBill()">Print</button>
 
 <script>
 
-let menu = {
-rice: [
-{name:"Masala Rice", half:60, full:100},
-{name:"Jeera Rice", half:60, full:100}
+let menu={
+veg:[
+{name:"Paneer Tikka Masala",price:180},
+{name:"Shahi Paneer",price:170},
+{name:"Veg Kolapuri",price:140},
+{name:"Dal Fry Half",price:50},
+{name:"Dal Fry Full",price:100}
 ],
-veg: [
-{name:"Paneer Tikka Masala", full:180},
-{name:"Shahi Paneer", full:170},
-{name:"Dal Fry", half:50, full:100}
+egg:[
+{name:"Egg Masala Half",price:60},
+{name:"Egg Masala Full",price:100}
 ],
-chicken: [
-{name:"Chicken Masala", half:100, full:200},
-{name:"Chicken Kadai", half:130, full:240}
+chicken:[
+{name:"Chicken Masala Half",price:100},
+{name:"Chicken Masala Full",price:200},
+{name:"Chicken Kolapuri Half",price:100},
+{name:"Chicken Kolapuri Full",price:200}
 ],
-roti: [
-{name:"Tandoori Roti", full:20},
-{name:"Butter Roti", full:25}
+roti:[
+{name:"Tandoori Roti",price:20},
+{name:"Butter Roti",price:25},
+{name:"Butter Kulcha",price:35}
 ]
 };
 
-let billItems = [];
+let tableBills={};
 
 function loadItems(){
-let cat = document.getElementById("category").value;
-let itemsDiv = document.getElementById("items");
-itemsDiv.innerHTML = "";
+let cat=document.getElementById("category").value;
+let div=document.getElementById("items");
+div.innerHTML="";
 if(!menu[cat]) return;
 
 menu[cat].forEach(item=>{
-let div = document.createElement("div");
-div.className="itemBox";
-
-let sizeOptions="";
-if(item.half) sizeOptions+=`<option value="${item.half}">Half ₹${item.half}</option>`;
-if(item.full) sizeOptions+=`<option value="${item.full}">Full ₹${item.full}</option>`;
-
-div.innerHTML=`
-<b>${item.name}</b><br>
-<select class="size">${sizeOptions}</select>
-Qty: <input type="number" value="1" min="1" class="qty">
-<button onclick="addToBill('${item.name}', this)">Add</button>
+div.innerHTML+=`
+<div class="itemBox">
+<b>${item.name}</b> - ₹${item.price}<br>
+Qty: <input type="number" value="1" min="1" id="qty_${item.name.replace(/\s/g,'')}">
+<button onclick="addItem('${item.name}',${item.price})">Add</button>
+</div>
 `;
-
-itemsDiv.appendChild(div);
 });
 }
 
-function addToBill(name, btn){
-let parent = btn.parentElement;
-let price = parseInt(parent.querySelector(".size").value);
-let qty = parseInt(parent.querySelector(".qty").value);
-let total = price * qty;
+function addItem(name,price){
+let table=document.getElementById("table").value;
+let qtyInputId="qty_"+name.replace(/\s/g,'');
+let qty=document.getElementById(qtyInputId).value;
 
-billItems.push({name:name, qty:qty, total:total});
+if(!tableBills[table]) tableBills[table]=[];
+
+let existing=tableBills[table].find(i=>i.name===name);
+if(existing){
+existing.qty+=parseInt(qty);
+}else{
+tableBills[table].push({name,price,qty:parseInt(qty)});
+}
+
 renderBill();
 }
 
 function renderBill(){
-let billDiv = document.getElementById("bill");
-let totalDiv = document.getElementById("total");
-
+let table=document.getElementById("table").value;
+let billDiv=document.getElementById("bill");
+let totalDiv=document.getElementById("total");
 billDiv.innerHTML="";
-let grandTotal=0;
+let total=0;
 
-billItems.forEach(item=>{
-billDiv.innerHTML += `${item.name} x ${item.qty} = ₹${item.total}<br>`;
-grandTotal += item.total;
+if(!tableBills[table]) return;
+
+tableBills[table].forEach((item,index)=>{
+let itemTotal=item.price*item.qty;
+total+=itemTotal;
+
+billDiv.innerHTML+=`
+${item.name} x ${item.qty} = ₹${itemTotal}
+<button class="smallBtn" onclick="removeItem(${index})">X</button><br>
+`;
 });
 
-totalDiv.innerHTML="Total = ₹"+grandTotal;
+totalDiv.innerHTML="Total = ₹"+total;
 }
 
-function submitBill(){
-let table = document.getElementById("table").value;
-let grandTotal = billItems.reduce((sum,i)=>sum+i.total,0);
+function removeItem(index){
+let table=document.getElementById("table").value;
+tableBills[table].splice(index,1);
+renderBill();
+}
 
-let message =
-"🧾 NEW DELHI DARBAR\n\n"+
-table+"\n\n"+
-billItems.map(i=>`${i.name} x ${i.qty} = ₹${i.total}`).join("\n")+
-"\n-----------------\nTOTAL = ₹"+grandTotal;
+function loadTableBill(){
+renderBill();
+}
+
+function holdBill(){
+alert("Bill Holded for "+document.getElementById("table").value);
+}
+
+function finalSubmit(){
+let table=document.getElementById("table").value;
+if(!tableBills[table] || tableBills[table].length===0){
+alert("No items!");
+return;
+}
+
+let message="🧾 NEW DELHI DARBAR\n"+table+"\n\n";
+let total=0;
+
+tableBills[table].forEach(item=>{
+let t=item.price*item.qty;
+total+=t;
+message+=`${item.name} x ${item.qty} = ₹${t}\n`;
+});
+
+message+="------------------\nTOTAL = ₹"+total;
 
 fetch('/api/bot',{
 method:"POST",
 headers:{'Content-Type':'application/json'},
 body:JSON.stringify({bill:message})
-}).then(()=>{
-alert("Bill Sent!");
-billItems=[];
-renderBill();
 });
+
+alert("Final Bill Sent!");
+tableBills[table]=[];
+renderBill();
 }
 
-/* VOICE SYSTEM */
+function printBill(){
+window.print();
+}
 
-function startListening(){
+/* ---------------- VOICE SYSTEM ---------------- */
+
+function startVoice(){
 
 if (!('webkitSpeechRecognition' in window)) {
-alert("Voice not supported in this browser. Use Chrome.");
+alert("Voice not supported. Use Chrome.");
 return;
 }
 
-const recognition = new webkitSpeechRecognition();
-recognition.lang = "en-IN";
+let recognition=new webkitSpeechRecognition();
+recognition.lang="en-IN";
+recognition.interimResults=false;
+recognition.maxAlternatives=1;
 
-recognition.onresult = function(event){
-let voiceText = event.results[0][0].transcript;
-processVoiceOrder(voiceText);
+recognition.onresult=function(event){
+let speech=event.results[0][0].transcript.toLowerCase();
+processVoiceOrder(speech);
+};
+
+recognition.onerror=function(){
+alert("Voice error");
 };
 
 recognition.start();
@@ -163,40 +209,54 @@ recognition.start();
 
 function processVoiceOrder(text){
 
-text = text.toLowerCase().trim();
+let table=document.getElementById("table").value;
+if(!tableBills[table]) tableBills[table]=[];
 
-let words = text.split(" ");
-let qty = parseInt(words[words.length-1]);
-if(isNaN(qty)) qty = 1;
+let qty=1;
 
-let itemName = isNaN(parseInt(words[words.length-1])) 
-? text 
-: words.slice(0,-1).join(" ");
-
-let foundItem = null;
-
-Object.values(menu).forEach(category=>{
-category.forEach(item=>{
-if(item.name.toLowerCase() === itemName){
-foundItem = item;
+// number detect
+let words=text.split(" ");
+words.forEach(word=>{
+if(!isNaN(word)){
+qty=parseInt(word);
 }
 });
+
+// match item
+let matchedItem=null;
+
+for(let category in menu){
+menu[category].forEach(item=>{
+let itemName=item.name.toLowerCase();
+if(text.includes(itemName)){
+matchedItem=item;
+}
 });
+}
 
-if(foundItem){
+if(matchedItem){
 
-let price = foundItem.full || foundItem.half;
-let total = price * qty;
+let existing=tableBills[table].find(i=>i.name===matchedItem.name);
 
-billItems.push({name:foundItem.name, qty:qty, total:total});
+if(existing){
+existing.qty+=qty;
+}else{
+tableBills[table].push({
+name:matchedItem.name,
+price:matchedItem.price,
+qty:qty
+});
+}
+
 renderBill();
+alert("Added: "+matchedItem.name+" x "+qty);
 
-} else {
-alert("Item not found: " + itemName);
+}else{
+alert("Item not found. Speak clearly.");
 }
+
 }
 
 </script>
-
 </body>
 </html>
