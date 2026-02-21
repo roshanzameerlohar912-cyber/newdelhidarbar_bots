@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>New Delhi Darbar - Billing</title>
+<title>New Delhi Darbar - Order</title>
 
 <style>
 body { font-family: Arial; padding: 15px; }
@@ -24,29 +23,20 @@ select, input { padding: 6px; margin: 5px; }
 <option>Table 1</option>
 <option>Table 2</option>
 <option>Table 3</option>
-<option>Table 4</option>
-<option>Table 5</option>
-<option>Table 6</option>
-<option>Table 7</option>
-<option>Table 8</option>
-<option>Table 9</option>
-<option>Table 10</option>
-<option>Table 11</option>
-<option>Table 12</option>
 </select>
 
 <h2>Select Category</h2>
 <select id="category" onchange="loadItems()">
 <option value="">--Select--</option>
 <option value="rice">Rice</option>
-<option value="vegGravy">Veg Gravy</option>
-<option value="vegStarter">Veg Starter</option>
-<option value="eggGravy">Egg Gravy</option>
-<option value="eggStarter">Egg Starter</option>
-<option value="chickenGravy">Chicken Gravy</option>
-<option value="chickenStarter">Chicken Starter</option>
+<option value="veg">Veg Gravy</option>
+<option value="egg">Egg Gravy</option>
+<option value="chicken">Chicken Gravy</option>
 <option value="roti">Roti</option>
+<option value="starter">Chicken Starter</option>
 </select>
+
+<button onclick="startListening()">🎤 Speak Order</button>
 
 <div id="items"></div>
 
@@ -54,133 +44,31 @@ select, input { padding: 6px; margin: 5px; }
 <div id="bill"></div>
 <div class="total" id="total"></div>
 
-<button onclick="submitBill()">Final Submit</button>
+<button onclick="submitBill()">Submit Bill</button>
 
 <script>
 
 let menu = {
-
 rice: [
 {name:"Masala Rice", half:60, full:100},
-{name:"Jeera Rice", half:60, full:100},
-{name:"Veg Fried Rice", half:60, full:100},
-{name:"Ghee Rice", half:70, full:130},
-{name:"Lemon Rice", full:120},
-{name:"Tomato Rice", full:120},
-{name:"Paneer Fried Rice", full:140},
-{name:"Egg Rice", half:60, full:100},
-{name:"Egg Fried Rice", half:60, full:100},
-{name:"Chicken Fried Rice", half:90, full:130},
-{name:"Chicken Schezwan Rice", full:150},
-{name:"Chicken Dum Biryani", half:90, full:130},
-{name:"Curd Rice", full:150},
-{name:"Dal Khichdi", full:120},
-{name:"Palak Dal Khichdi", full:140},
-{name:"Mushroom Fried Rice", full:140}
+{name:"Jeera Rice", half:60, full:100}
 ],
-
-vegGravy: [
+veg: [
 {name:"Paneer Tikka Masala", full:180},
-{name:"Paneer Kolapuri", full:150},
 {name:"Shahi Paneer", full:170},
-{name:"Paneer Masala", full:150},
-{name:"Betes Paneer Masala", full:180},
-{name:"Palak Paneer", full:170},
-{name:"Paneer Kadai", full:180},
-{name:"Paneer Makhan Wala", full:170},
-{name:"Mix Masala", full:130},
-{name:"Veg Kolapuri", full:140},
-{name:"Veg Makhan Wala", full:160},
-{name:"Veg Kadai", full:150},
-{name:"Dal Fry", half:50, full:100},
-{name:"Dal Tadka", half:60, full:110},
-{name:"Dal Kolapuri", half:60, full:110},
-{name:"Madki Masala", half:60, full:100},
-{name:"Madki Dry", full:120},
-{name:"Dal Madki Mix", full:150},
-{name:"Dal Makhan Wala", full:120},
-{name:"Hyderabadi Cheese", full:160},
-{name:"Cashew Nut Masala", full:150},
-{name:"Cashew Nuts", full:150},
-{name:"Kaju Hyderabadi", full:160},
-{name:"Cashew Makhan Wala", full:180},
-{name:"Cashew Cheese Mix", full:180},
-{name:"Mushroom Masala", full:150},
-{name:"Mushroom Kolapuri", full:160},
-{name:"Mushroom Hyderabadi", full:170},
-{name:"Mushroom Makhan Wala", full:170},
-{name:"Mushroom Kadai", full:180}
+{name:"Dal Fry", half:50, full:100}
 ],
-
-vegStarter: [
-{name:"Paneer Chilly", full:170},
-{name:"Paneer Manchurian", full:170},
-{name:"Paneer Pepper Dry", full:200},
-{name:"Mushroom Chilly", full:200},
-{name:"Mushroom Manchurian", full:200},
-{name:"Mushroom Pepper Dry", full:200},
-{name:"Paneer Mushroom Pepper Dry", full:180}
+chicken: [
+{name:"Chicken Masala", half:100, full:200},
+{name:"Chicken Kadai", half:130, full:240}
 ],
-
-eggGravy: [
-{name:"Egg Masala", half:60, full:100},
-{name:"Egg Kolapuri", half:60, full:100},
-{name:"Egg Kacha Masala", half:60, full:100},
-{name:"Egg Hyderabadi", full:120},
-{name:"Egg Makhanwala", full:150},
-{name:"Egg Maharaja", full:150},
-{name:"Egg Burji", full:50},
-{name:"Boiled Egg Fry", full:60}
-],
-
-eggStarter: [
-{name:"Egg Chilly", full:150},
-{name:"Egg Manchurian", full:150},
-{name:"Egg Pakoda", full:180},
-{name:"Omelet", full:50},
-{name:"Boiled Egg", full:15}
-],
-
-chickenGravy: [
-{name:"Chicken Kadai", three:130, six:240, twelve:450},
-{name:"Chicken Tikka Masala", three:130, six:240, twelve:450},
-{name:"Chicken Mughlai", three:130, six:240, twelve:450},
-{name:"Chicken Maharaja", three:150, six:280, twelve:550},
-{name:"Chicken Patiyala", three:150, six:280, twelve:550},
-{name:"Chicken Guardian Masala", three:150, six:280, twelve:550},
-{name:"Chicken Makhanwala", three:150, six:280, twelve:550},
-{name:"Chicken Masala", three:100, six:200, twelve:400},
-{name:"Chicken Kolhapuri", three:100, six:200, twelve:400},
-{name:"Chicken Hyderabadi (New Delhi Darbar)", three:120, six:230, twelve:450}
-],
-
-chickenStarter: [
-{name:"Chicken Don (6 pcs)", full:230},
-{name:"Chicken Domestic (6 pcs)", full:250},
-{name:"Chicken Lollipop (6 pcs)", full:220},
-{name:"Chicken Majestic Boneless (10 pcs)", full:250},
-{name:"Chicken Crispy Boneless (10 pcs)", full:250},
-{name:"Chicken Dragon Boneless (10 pcs)", full:250},
-{name:"Chicken 65 Boneless (10 pcs)", full:200},
-{name:"Chicken Guardian Boneless (10 pcs)", full:230},
-{name:"Pepper Dry Boneless (10 pcs)", full:200},
-{name:"Garlic Chicken Boneless (10 pcs)", full:220},
-{name:"Chicken Chilli Boneless (10 pcs)", full:200},
-{name:"Chicken Manchurian (10 pcs)", full:200},
-{name:"Chicken 555 (10 pcs)", full:200},
-{name:"Chicken Kabab (10 pcs)", full:140}
-],
-
 roti: [
-{name:"Tandoori Roti", full:15},
-{name:"Butter Roti", full:20},
-{name:"Butter Kulcha", full:30},
-{name:"Jawari Roti", full:10}
+{name:"Tandoori Roti", full:20},
+{name:"Butter Roti", full:25}
 ]
-
 };
 
-let billItems = {};
+let billItems = [];
 
 function loadItems(){
 let cat = document.getElementById("category").value;
@@ -191,13 +79,10 @@ if(!menu[cat]) return;
 menu[cat].forEach(item=>{
 let div = document.createElement("div");
 div.className="itemBox";
-let sizeOptions="";
 
+let sizeOptions="";
 if(item.half) sizeOptions+=`<option value="${item.half}">Half ₹${item.half}</option>`;
 if(item.full) sizeOptions+=`<option value="${item.full}">Full ₹${item.full}</option>`;
-if(item.three) sizeOptions+=`<option value="${item.three}">3 Pcs ₹${item.three}</option>`;
-if(item.six) sizeOptions+=`<option value="${item.six}">6 Pcs ₹${item.six}</option>`;
-if(item.twelve) sizeOptions+=`<option value="${item.twelve}">12 Pcs ₹${item.twelve}</option>`;
 
 div.innerHTML=`
 <b>${item.name}</b><br>
@@ -205,6 +90,7 @@ div.innerHTML=`
 Qty: <input type="number" value="1" min="1" class="qty">
 <button onclick="addToBill('${item.name}', this)">Add</button>
 `;
+
 itemsDiv.appendChild(div);
 });
 }
@@ -213,88 +99,104 @@ function addToBill(name, btn){
 let parent = btn.parentElement;
 let price = parseInt(parent.querySelector(".size").value);
 let qty = parseInt(parent.querySelector(".qty").value);
-let key = name + "_" + price;
+let total = price * qty;
 
-if(billItems[key]){
-billItems[key].qty += qty;
-}else{
-billItems[key] = { name:name, price:price, qty:qty };
-}
+billItems.push({name:name, qty:qty, total:total});
 renderBill();
 }
 
 function renderBill(){
 let billDiv = document.getElementById("bill");
 let totalDiv = document.getElementById("total");
+
 billDiv.innerHTML="";
 let grandTotal=0;
 
-for(let key in billItems){
-let item = billItems[key];
-let itemTotal = item.price * item.qty;
-grandTotal += itemTotal;
-billDiv.innerHTML += `${item.name} x ${item.qty} = ₹${itemTotal}<br>`;
-}
+billItems.forEach(item=>{
+billDiv.innerHTML += `${item.name} x ${item.qty} = ₹${item.total}<br>`;
+grandTotal += item.total;
+});
 
-totalDiv.innerHTML="TOTAL = ₹"+grandTotal;
+totalDiv.innerHTML="Total = ₹"+grandTotal;
 }
 
 function submitBill(){
-alert("Bill Completed!");
-billItems = {};
-renderBill();
-}
-<button onclick="submitBill()" id="submitBtn">Final Submit</button>
-<button onclick="editBill()" id="editBtn" style="display:none;">Edit Bill</button>
-let billLocked = false;
-function submitBill(){
+let table = document.getElementById("table").value;
+let grandTotal = billItems.reduce((sum,i)=>sum+i.total,0);
 
-if(Object.keys(billItems).length === 0){
-alert("No items added!");
+let message =
+"🧾 NEW DELHI DARBAR\n\n"+
+table+"\n\n"+
+billItems.map(i=>`${i.name} x ${i.qty} = ₹${i.total}`).join("\n")+
+"\n-----------------\nTOTAL = ₹"+grandTotal;
+
+fetch('/api/bot',{
+method:"POST",
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({bill:message})
+}).then(()=>{
+alert("Bill Sent!");
+billItems=[];
+renderBill();
+});
+}
+
+/* VOICE SYSTEM */
+
+function startListening(){
+
+if (!('webkitSpeechRecognition' in window)) {
+alert("Voice not supported in this browser. Use Chrome.");
 return;
 }
 
-billLocked = true;
+const recognition = new webkitSpeechRecognition();
+recognition.lang = "en-IN";
 
-document.getElementById("submitBtn").style.display="none";
-document.getElementById("editBtn").style.display="inline-block";
+recognition.onresult = function(event){
+let voiceText = event.results[0][0].transcript;
+processVoiceOrder(voiceText);
+};
 
-alert("Bill Submitted! If customer wants more items, click Edit Bill.");
-
-}
-function editBill(){
-
-billLocked = false;
-
-document.getElementById("submitBtn").style.display="inline-block";
-document.getElementById("editBtn").style.display="none";
-
-alert("Now you can add more items.");
-
-}
-function addToBill(name, btn){
-
-if(billLocked){
-alert("Click Edit Bill to add more items!");
-return;
+recognition.start();
 }
 
-let parent = btn.parentElement;
-let price = parseInt(parent.querySelector(".size").value);
-let qty = parseInt(parent.querySelector(".qty").value);
+function processVoiceOrder(text){
 
-let key = name + "_" + price;
+text = text.toLowerCase().trim();
 
-if(billItems[key]){
-billItems[key].qty += qty;
-}else{
-billItems[key] = { name:name, price:price, qty:qty };
+let words = text.split(" ");
+let qty = parseInt(words[words.length-1]);
+if(isNaN(qty)) qty = 1;
+
+let itemName = isNaN(parseInt(words[words.length-1])) 
+? text 
+: words.slice(0,-1).join(" ");
+
+let foundItem = null;
+
+Object.values(menu).forEach(category=>{
+category.forEach(item=>{
+if(item.name.toLowerCase() === itemName){
+foundItem = item;
 }
+});
+});
 
+if(foundItem){
+
+let price = foundItem.full || foundItem.half;
+let total = price * qty;
+
+billItems.push({name:foundItem.name, qty:qty, total:total});
 renderBill();
-}
 
+} else {
+alert("Item not found: " + itemName);
+}
+}
 
 </script>
+
 </body>
 </html>
