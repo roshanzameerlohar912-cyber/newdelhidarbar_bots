@@ -349,3 +349,145 @@ alert("Item not found. Speak clearly.");
 </script>
 </body>
 </html>
+{
+  "name": "telegram-voice-pos",
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
+{
+  "version": 2,
+  "routes": [
+    {
+      "src": "/api/webhook",
+      "dest": "/api/webhook.js"
+    }
+  ]
+}
+const axios = require("axios");
+
+// ⚠ TESTING ONLY - NOT SAFE FOR PRODUCTION
+const BOT_TOKEN = "-8320205588:AAG0oUc4psbAOWRqRXZjrFHNKaYhr55dkmY";
+const OWNER_ID = "-1187841877";
+
+const TELEGRAM_API = `https://api.telegram.org/bot${BOT_TOKEN}`;
+
+let tables = {};
+
+const menu = {
+  "biryani": 150,
+  "water": 20,
+  "tea": 10,
+  "samosa": 15
+};
+
+async function sendMessage(chatId, text) {
+  await axios.post(`${TELEGRAM_API}/sendMessage`, {
+    chat_id: chatId,
+    text: text
+  });
+}
+
+async function getFileLink(file_id) {
+  const res = await axios.get(`${TELEGRAM_API}/getFile?file_id=${file_id}`);
+  return `https://api.telegram.org/file/bot${BOT_TOKEN}/${res.data.result.file_path}`;
+}
+
+async function voiceToText(fileUrl) {
+  return "5 - 2 biryani - 1 water - hold";
+}
+
+function processOrder(text) {
+  text = text.toLowerCase();
+  const parts = text.split("-");
+  const tableNumber = parts[0].trim();
+
+  if (!tables[tableNumber]) {
+    tables[tableNumber] = { items: [], total: 0, status: "OPEN" };
+  }
+
+  for (let i = 1; i < parts.length; i++) {
+    const part = parts[i].trim();
+
+    if (part.includes("hold")) {
+      tables[tableNumber].status = "HOLD";
+    }
+    else if (part.includes("submit")) {
+      tables[tableNumber].status = "CLOSED";
+      const total = tables[tableNumber].total;
+      delete tables[tableNumber];
+      return { tableNumber, action: "CLOSED", total };
+    }
+    else {
+      const words = part.split(" ");
+      const qty = parseInt(words[0]);
+      const itemName = words.slice(1).join(" ");
+
+      let price = 0;
+      for (let key in menu) {
+        if (itemName.includes(key)) {
+          price = menu[key];
+        }
+      }
+
+      const itemTotal = qty * price;
+      tables[tableNumber].items.push({ itemName, qty, itemTotal });
+      tables[tableNumber].total += itemTotal;
+    }
+  }
+
+  return {
+    tableNumber,
+    action: "UPDATED",
+    total: tables[tableNumber].total,
+    status: tables[tableNumber].status
+  };
+}
+
+module.exports = async (req, res) => {
+
+  if (req.method !== "POST") {
+    return res.status(200).send("Bot running");
+  }
+
+  const body = req.body;
+
+  if (!body.message) return res.status(200).send("ok");
+
+  const chatId = body.message.chat.id;
+  let text = body.message.text;
+
+  if (body.message.voice) {
+    const fileId = body.message.voice.file_id;
+    const fileUrl = await getFileLink(fileId);
+    text = await voiceToText(fileUrl);
+  }
+
+  if (!text) return res.status(200).send("ok");
+
+  const result = processOrder(text);
+
+  if (result.action === "CLOSED") {
+
+    await sendMessage(chatId,
+      `✅ Table ${result.tableNumber} CLOSED\nTotal ₹${result.total}`
+    );
+
+    await sendMessage(OWNER_ID,
+      `🔔 Table ${result.tableNumber} Closed\nFinal ₹${result.total}`
+    );
+
+  } else {
+
+    await sendMessage(chatId,
+      `🪑 Table ${result.tableNumber} (${result.status})\nTotal ₹${result.total}`
+    );
+
+    await sendMessage(OWNER_ID,
+      `📢 Table ${result.tableNumber} ${result.status}\nCurrent ₹${result.total}`
+    );
+  }
+
+  res.status(200).send("ok");
+};
